@@ -7,12 +7,13 @@ public class PSO {
         Particles particles = new Particles();
         particles.populateList(dataFileLocation);
         particles.calculateGlobalBest();
+        particles.getMinAndMax();
         particles.showList();
         System.out.println("Standard Deviation Before PSO :: " + particles.calculateSD());
 
         particles.runPSOOptimization();
         particles.showList();
-        System.out.println("Standard Deviation After PSO :: " + particles.calculateStandardDeviationGLobalBest());
+        System.out.println("Standard Deviation After PSO :: " + particles.calculateStandardDeviationGlobalBest());
 
     }
 }

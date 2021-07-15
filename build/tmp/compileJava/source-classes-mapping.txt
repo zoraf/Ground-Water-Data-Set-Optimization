@@ -1,8 +1,8 @@
-Particles.java
- Particles
-Utils.java
- Utils
 Swarm.java
  Swarm
+Utils.java
+ Utils
+Particles.java
+ Particles
 PSO.java
  PSO

@@ -12,6 +12,9 @@ import java.util.List;
 public class Particles {
     private List<Swarm> listOfSwarms;
     private double globalBest;
+    private double min = Integer.MAX_VALUE;
+    private double max = Integer.MIN_VALUE;
+
 
     public Particles() {
         this.listOfSwarms = new ArrayList<Swarm>();
@@ -69,6 +72,21 @@ public class Particles {
         }
     }
 
+    public void getMinAndMax() {
+        for (int i = 0; i < listOfSwarms.size(); i++) {
+            if (listOfSwarms.get(i).getX() < min) {
+                min = listOfSwarms.get(i).getX();
+            }
+
+            if (listOfSwarms.get(i).getX() > max) {
+                max = listOfSwarms.get(i).getX();
+            }
+        }
+
+        min = min - Math.random();
+        max = max + Math.random();
+    }
+
     public void calculateGlobalBest() {
         double sum = 0;
         for (int i = 0; i < listOfSwarms.size(); i++) {
@@ -105,7 +123,7 @@ public class Particles {
     public void runPSOOptimization() {
         try {
 
-            for (int i = 0; i < 500; i++) {
+            for (int i = 0; i < 10000; i++) {
 
                 for (int k = 0; k < listOfSwarms.size(); k++) {
 
@@ -123,16 +141,17 @@ public class Particles {
                         }
                     }
                     Swarm closeSwarm = getLocalBest(listOfClosestSwarms);
-                    swarm.setVelocity( Math.random() * swarm.getVelocity() * (closeSwarm.getX() - swarm.getX())  * (globalBest - swarm.getX()));
-                    swarm.setX((swarm.getX() +  swarm.getVelocity()));
+                    swarm.setVelocity(Math.random() * swarm.getVelocity() * (closeSwarm.getX() - swarm.getX()) * (globalBest - swarm.getX()));
 
-                    double newStandardDeviation = calculateSD();
-                    if (newStandardDeviation < standardDeviation) {
-                        swarm.setBestKnownX(swarm.getX());
-                        calculateGlobalBest();
+                    double newSwarmPosition = Math.round((swarm.getX() + swarm.getVelocity()) * 100) / 100;
+                    if (newSwarmPosition >= min && newSwarmPosition <= max) {
+                        swarm.setX(newSwarmPosition);
+                        double newStandardDeviation = calculateSD();
+                        if (newStandardDeviation < standardDeviation) {
+                            swarm.setBestKnownX(swarm.getX());
+                            calculateGlobalBest();
+                        }
                     }
-
-
                 }
             }
         } catch (Exception e) {
@@ -166,7 +185,7 @@ public class Particles {
         return stantdardDeviation;
     }
 
-    public double calculateStandardDeviationGLobalBest(){
+    public double calculateStandardDeviationGlobalBest() {
         double sum = 0;
         for (int i = 0; i < listOfSwarms.size(); i++) {
             sum += listOfSwarms.get(i).getBestKnownX();
@@ -182,13 +201,14 @@ public class Particles {
         return stantdardDeviation;
 
     }
+
     public void showList() {
         try {
             System.out.println("Size ::  " + listOfSwarms.size());
             for (int i = 0; i < listOfSwarms.size(); i++) {
                 Swarm swarm = listOfSwarms.get(i);
                 System.out.println("Ground Water Level:: " + swarm.getX() +
-                         "  Best Known::  " + swarm.getBestKnownX());
+                        "  Best Known::  " + swarm.getBestKnownX());
             }
         } catch (Exception e) {
             e.printStackTrace();
