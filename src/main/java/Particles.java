@@ -166,12 +166,28 @@ public class Particles {
         return stantdardDeviation;
     }
 
+    public double calculateStandardDeviationGLobalBest(){
+        double sum = 0;
+        for (int i = 0; i < listOfSwarms.size(); i++) {
+            sum += listOfSwarms.get(i).getBestKnownX();
+        }
+
+        double mean = sum / listOfSwarms.size();
+
+        double deviation = 0;
+        for (int i = 0; i < listOfSwarms.size(); i++) {
+            deviation += (listOfSwarms.get(i).getBestKnownX() - mean) * (listOfSwarms.get(i).getBestKnownX() - mean);
+        }
+        double stantdardDeviation = Math.sqrt(deviation / listOfSwarms.size());
+        return stantdardDeviation;
+
+    }
     public void showList() {
         try {
             System.out.println("Size ::  " + listOfSwarms.size());
             for (int i = 0; i < listOfSwarms.size(); i++) {
                 Swarm swarm = listOfSwarms.get(i);
-                System.out.println("X:: " + swarm.getX() +
+                System.out.println("Ground Water Level:: " + swarm.getX() +
                          "  Best Known::  " + swarm.getBestKnownX());
             }
         } catch (Exception e) {

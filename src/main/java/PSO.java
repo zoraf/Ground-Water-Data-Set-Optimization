@@ -8,11 +8,11 @@ public class PSO {
         particles.populateList(dataFileLocation);
         particles.calculateGlobalBest();
         particles.showList();
-        System.out.println("SD :: " + particles.calculateSD());
-        System.out.println("GLobal Best :: " + particles.getGlobalBest());
+        System.out.println("Standard Deviation Before PSO :: " + particles.calculateSD());
+
         particles.runPSOOptimization();
         particles.showList();
-        System.out.println("SD :: " + particles.calculateSD());
-        System.out.println("GLobal Best :: " + particles.getGlobalBest());
+        System.out.println("Standard Deviation After PSO :: " + particles.calculateStandardDeviationGLobalBest());
+
     }
 }
