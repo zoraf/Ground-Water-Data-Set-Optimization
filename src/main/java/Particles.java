@@ -1,10 +1,12 @@
+import com.opencsv.CSVWriter;
+import com.sun.javafx.binding.StringFormatter;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,21 +45,31 @@ public class Particles {
     }
 
     public void populateList(String fileLocation) {
+        DataFormatter dataFormatter = new DataFormatter();
+
         try {
             File file = new File(fileLocation);
             FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file
             XSSFWorkbook wb = new XSSFWorkbook(fis);
             XSSFSheet sheet = wb.getSheetAt(0);     //creating a Sheet object to retrieve object
             Iterator<Row> itr = sheet.iterator();    //iterating over excel file
+            if (itr.hasNext()) {
+                Row row = itr.next();
+            }
             while (itr.hasNext()) {
                 Row row = itr.next();
                 Iterator<Cell> cellIterator = row.cellIterator();   //iterating over each column
                 int counter = 0;
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
-                    if (counter == 5) {
+                    if (counter == 4) {
                         Swarm swarm = new Swarm();
-                        swarm.setX(Double.parseDouble(cell.getStringCellValue()));
+                        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+                            swarm.setX(cell.getNumericCellValue());
+                        } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+                            swarm.setX(Double.parseDouble(cell.getStringCellValue()));
+                        }
+
                         swarm.setY(Utils.Y);
                         swarm.setBestKnownX(swarm.getX());
                         swarm.setVelocity(swarm.getX());
@@ -143,7 +155,8 @@ public class Particles {
                     Swarm closeSwarm = getLocalBest(listOfClosestSwarms);
                     swarm.setVelocity(Math.random() * swarm.getVelocity() * (closeSwarm.getX() - swarm.getX()) * (globalBest - swarm.getX()));
 
-                    double newSwarmPosition = Math.round((swarm.getX() + swarm.getVelocity()) * 100) / 100;
+//                    double newSwarmPosition = Math.round((swarm.getX() + swarm.getVelocity()) * 1000) / 1000;
+                    double newSwarmPosition = swarm.getX() + swarm.getVelocity();
                     if (newSwarmPosition >= min && newSwarmPosition <= max) {
                         swarm.setX(newSwarmPosition);
                         double newStandardDeviation = calculateSD();
@@ -213,6 +226,39 @@ public class Particles {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+    }
+
+    public void writeFile() {
+
+        File file = new File("output.csv");
+        try {
+            // create FileWriter object with file as parameter
+            FileWriter outputfile = new FileWriter(file);
+
+            // create CSVWriter object filewriter object as parameter
+            CSVWriter writer = new CSVWriter(outputfile);
+
+            // adding header to csv
+            String[] header = {"Predicted Ground Water Level"};
+            writer.writeNext(header);
+
+            List<String[]> data1 = new ArrayList<String[]>();
+            for (int i = 0; i < listOfSwarms.size(); i++) {
+                Swarm swarm = listOfSwarms.get(i);
+                data1.add(new String[]{Double.toString(swarm.getBestKnownX())});
+            }
+            // add data to csv
+
+            writer.writeAll((List<String[]>) data1);
+
+            // closing writer connection
+            writer.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
 
     }
 }
